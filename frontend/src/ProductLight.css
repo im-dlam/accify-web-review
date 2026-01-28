@@ -1,0 +1,87 @@
+/* Light theme overrides */
+body.light-theme {
+  --panel: #fff;
+  --muted: #545e66;
+  --accent: #0b76d1;
+  --hot: #ff7a1a;
+  --text: #0f1720;
+  --radius: 10px;
+}
+
+body.light-theme .section-product {
+  background: #fff !important;
+  border-radius: 16px;
+  border: 1px solid #eef3f8;
+  box-shadow: 0 4px 24px rgba(11,22,33,0.06);
+  padding: 32px 28px;
+  margin: 32px auto;
+}
+
+body.light-theme .table-head-left h4 {
+  color: var(--text);
+}
+
+body.light-theme .filters button {
+  background: transparent;
+  color: var(--muted);
+}
+
+body.light-theme .filters .active {
+  background: linear-gradient(90deg, var(--accent), #1aa6ff);
+  color: #fff;
+}
+
+body.light-theme .product-row {
+  background: #fff;
+  border: 1px solid #e6edf3;
+  box-shadow: 0 1px 4px rgba(11,22,33,0.04);
+}
+
+body.light-theme .product-row .icon {
+  color: var(--accent);
+  background: #f7f9fc;
+  border: 1px solid #e6edf3;
+}
+
+body.light-theme .product-row .title {
+  color: var(--text);
+}
+
+body.light-theme .product-row .badge {
+  background: var(--accent);
+  color: #fff;
+}
+
+body.light-theme .product-row .badge-hot {
+  background: linear-gradient(90deg, var(--hot), #ff6b00);
+  color: #fff;
+}
+
+body.light-theme .product-row .subtitle {
+  color: var(--muted);
+}
+
+body.light-theme .col {
+  color: var(--muted);
+}
+
+body.light-theme .col.price {
+  color: var(--text);
+}
+
+body.light-theme .btn-buy {
+  background: linear-gradient(90deg, #0ea5ff, #0088ff);
+  color: #fff;
+}
+
+body.light-theme .btn-disabled {
+  background: #f7f9fc;
+  color: #bfc7d5;
+  border: 1px dashed #e6edf3;
+}
+
+body.light-theme .btn-detail {
+  background: #f7f9fc;
+  border: 1px solid #e6edf3;
+  color: var(--muted);
+}

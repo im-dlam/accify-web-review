@@ -1,0 +1,9 @@
+pwdlib=0.3.0
+requests=2.32.3
+PyJWT=PyJWT
+SQLAlchemy=2.0.42
+pydantic=2.11.5
+dotenv=dotenv
+fastapi=0.116.1
+# psycopg2-binary=2.9.11
+asyncpg=0.30.0
