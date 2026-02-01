@@ -17,8 +17,6 @@ async def get_db():
     async with AsyncSessionLocal() as session:
         yield session
 
-
-
 async def get_current_user(request: Request, db: AsyncSession = Depends(get_db)) -> UserPublic:
     token = request.cookies.get("access_token")
     if not token:
@@ -51,3 +49,9 @@ async def get_current_user(request: Request, db: AsyncSession = Depends(get_db))
     )
 
 
+async def get_current_admin(request: Request, db: AsyncSession = Depends(get_db)) -> UserPublic:
+    user = await get_current_user(request, db)
+    if user.role != "admin":
+        raise APIException(status_code=423, message="Access is not permitted")
+    
+    return user
