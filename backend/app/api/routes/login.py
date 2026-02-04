@@ -33,7 +33,7 @@ async def login(user: UserLogin, db: AsyncSession = Depends(get_db)) -> LoginRes
             status_code=status.HTTP_401_UNAUTHORIZED, message="Invalid credentials"
         )
     content = LoginResponse(
-        status="success",
+        # status="success",
         message=f"Hi {user.username}! Welcome to BanVia.VN",
         profile=UserInfo.model_validate(user_in),
     )

@@ -23,7 +23,6 @@ async def read_user_me(user = Depends(get_current_user)):
 @router.post("/logout")
 async def logout():
     res = JSONResponse({"success": True})
-    # res.delete_cookie(key="access_token",path="/", samesite="lax")
     res.delete_cookie(
         key="access_token",
         httponly=True,
@@ -39,7 +38,10 @@ async def signup(user: UserSignup, db: AsyncSession = Depends(get_db)) -> UserIn
     role = "admin"
     new_user = User(username=user.username, email=user.email, password_hash=security.get_password(user.password), role=role)
     
-    await create_user(user_create=new_user, db=db)
+    async with db.begin(): # Dung transaction rieng
+        await create_user(user_create=new_user, db=db)
+    await db.refresh(new_user)
+    
     access_token = security.create_access_token(
         subject={
             "id": new_user.id,
@@ -52,10 +54,6 @@ async def signup(user: UserSignup, db: AsyncSession = Depends(get_db)) -> UserIn
     
     user_info = UserInfo.model_validate(new_user)
     resp = JSONResponse(content=user_info.model_dump(), status_code=201)
-    access_token = security.create_access_token(
-        subject={"id": new_user.id, "username": user.username, "role": role},
-        expires_timedelta=timedelta(minutes=30),
-    )
     resp.set_cookie(key="access_token",value=access_token,
                     httponly=True,
                     path="/",
