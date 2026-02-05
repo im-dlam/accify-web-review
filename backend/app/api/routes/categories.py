@@ -104,7 +104,7 @@ async def delete_category(
 
 
 
-    return ItemDelete(message="Item deleted successfully", item={"id":row.id, "name":row.name})
+        return ItemDelete(message="Item deleted successfully", item={"id":row.id, "name":row.name})
 
 
 @router.put("/", response_model=Category)
