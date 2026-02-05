@@ -1,5 +1,5 @@
-from email.policy import default
-from typing import Annotated, Dict , Literal, Optional, List
+from datetime import datetime
+from typing import Annotated, Any, Dict , Literal, Optional, List, Set
 from fastapi.responses import JSONResponse 
 from pydantic import BaseModel, Field, model_validator, EmailStr
 from datetime import date
@@ -40,29 +40,36 @@ class UserInfo(BaseModel):
     id: int
     username: str
     balance: int = 0
-    is_active: bool
+    # is_active: bool
     class Config:
         from_attributes = True
         
         
 class LoginResponse(BaseModel):
-    status : Literal["success", "error"]
+    status : bool = True
     message: str
     profile: Optional[UserInfo] = None
 
+class ItemDelete(BaseModel):
+    status : bool = True
+    message: str
+    item: Any = {}
 
+    class Config:
+        from_attributes = True
+        
 class Product(BaseModel):
     id: int
-    name: str
-    subtitle: str
-    description: str
-    stock: int = 0
-    price: float
-    discount: int
-    country: str
-    image_url: str = ""
-    icons: str
-    time: date = Field(default_factory=date.today)
+    name: str = None
+    subtitle: str = None
+    description: str =  None
+    stock: int = None
+    price: float = None
+    discount: int = None
+    country: str = None
+    image_url: str = None
+    icons: str = None
+    time: date = None
     
     class Config:
         from_attributes = True
@@ -98,10 +105,10 @@ class ProductPublic(BaseModel):
     products: List[Product] = Field(default_factory=list)
     
 class Category(BaseModel):
-    id: int
-    name: str
-    keyword: str
-    color: str = "#34A0FF"
+    id: int 
+    name: str = None
+    keyword: str =  None
+    color: str = None
     
     class Config:
         from_attributes = True
@@ -112,9 +119,41 @@ class CategoryCreate(BaseModel):
     keyword: str
     color: str = "#34A0FF"
 
-class CategoryDelete(BaseModel):
-    pass
-
 class CategoryPublic(BaseModel):
     success: bool
     categories: List[Category] = Field(default_factory=list)
+    
+class Inventory(BaseModel):
+    id: int
+    product_id: int
+    data: str
+    status: Literal["available","sold","locked","refunded"] 
+    created_at: datetime
+    updated_at: datetime
+
+    class Config:
+        from_attributes=True
+        
+class InventoryCreate(BaseModel):
+    product_id: int
+    items: List[str] | str 
+
+    class Config:
+        from_attributes = True
+        
+class InventoryPublic(BaseModel):
+    status: bool = True
+    data: List[Inventory] = []
+    
+    class Config:
+        from_attributes = True
+        extra = "allow"
+
+class Messages(BaseModel):
+    status: bool = True
+    message: str = None
+    created_at: datetime = Field(default_factory=datetime.now)
+    
+    class Config:
+        extra = "allow" #TODO: Allow them cac attr khac
+    
