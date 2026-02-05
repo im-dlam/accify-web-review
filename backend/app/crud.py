@@ -25,8 +25,6 @@ async def create_user(*, user_create: User, db: AsyncSession) -> bool:
     """
     try:
         db.add(user_create)
-        await db.commit()
-        await db.refresh(user_create)
     except IntegrityError as e:
         await db.rollback()
         msg = str(e.orig).lower()
