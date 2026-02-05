@@ -5,10 +5,10 @@ from app.api.exception import APIException
 from app.schemas import CategoryPublic, Category, CategoryCreate, ItemDelete, UserPublic
 from app.models import ProductCategory, Product
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, update
+from sqlalchemy import select, update, delete
 from sqlalchemy.orm import load_only
 from sqlalchemy.exc import IntegrityError
-
+from asyncpg import ForeignKeyViolationError
 router = APIRouter(prefix="/categories", tags=["category"])
 
 
@@ -78,30 +78,33 @@ async def delete_category(
 ) -> Any:
     """Xóa danh mục theo id"""
 
-    result = await db.execute(
-        select(ProductCategory).where(ProductCategory.id == category_id)
-    )
-    category = result.scalar_one_or_none()
-    if not category:
-        raise APIException(status_code=404, message="Category not found")
-
-    category_data = Category.model_validate(category)
-    if not category:
-        raise APIException(status_code=404, message="Not found category")
     try:
-        await db.delete(category)
+        result = await db.execute(
+            delete(ProductCategory)
+            .where(ProductCategory.id == category_id)
+            .returning(
+                ProductCategory.id,
+                ProductCategory.name,
+            )
+        )
+
+        row = result.first()
+        if not row:
+            raise APIException(status_code=404, message="Category not found")
+
         await db.commit()
     except IntegrityError as e:
         await db.rollback()
-        msg = str(e.orig).lower()
-
-        if "foreignkeyviolationerror" in msg:
+        if isinstance(e.orig, ForeignKeyViolationError):
             raise APIException(
                 status_code=400,
                 message="The category still has products. Please move or delete them first.",
             )
 
-    return ItemDelete(message="Item deleted successfully", item=category_data)
+
+
+
+    return ItemDelete(message="Item deleted successfully", item={"id":row.id, "name":row.name})
 
 
 @router.put("/", response_model=Category)
