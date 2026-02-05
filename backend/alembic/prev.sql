@@ -103,7 +103,8 @@ create table wallets (
 	id serial primary key,
 	user_id int references users(id) not null unique,
 	balance decimal(18,2) check(balance >= 0) default 0,
-	created_at timestamp default now()
+	created_at timestamp default now(),
+	updated_at timestamp default now(),
 )
 create index idx_wallets_uid on wallets(user_id)
 
@@ -114,7 +115,8 @@ create table payments (
 	amount decimal(18, 2) not null check (amount > 0),
 	status varchar(50) check(status in ('pending','success','failed')) default 'pending',
 	description varchar(255),
-	created_at timestamp default now()
+	created_at timestamp default now(),
+	updated_at timestamp default now()
 )
 
 create index idx_payments_wid on payments(wallet_id)
@@ -160,8 +162,24 @@ create trigger trg_auto_update_time_wallets
 before update on wallets
 for each row
 execute function fn_auto_update_time();
--- triiger payments 
+-- trihger payments 
 create trigger trg_auto_update_time_payments
 before update on payments
 for each row
 execute function fn_auto_update_time();
+
+-- trigger insert wallet when user created
+create or replace function fn_insert_wallet()
+returns trigger as $$
+begin
+	insert into wallets(user_id, balance)
+	values (NEW.id, 0);
+
+	return NEW;
+end;
+$$ language plpgsql;
+
+create trigger trg_auto_insert_wallet
+after insert on users
+for each row
+execute function fn_insert_wallet() 
