@@ -1,5 +1,6 @@
 from datetime import datetime
 from typing import Annotated, Any, Dict , Literal, Optional, List, Set
+import uuid
 from fastapi.responses import JSONResponse 
 from pydantic import BaseModel, Field, model_validator, EmailStr
 from datetime import date
@@ -12,6 +13,7 @@ class UserPublic(BaseModel):
     username: str
     email: str
     role: str
+    wallet_id: int
     class Config:
         from_attributes = True
         
@@ -39,7 +41,7 @@ class UserSignup(UserLogin):
 class UserInfo(BaseModel):
     id: int
     username: str
-    balance: int = 0
+    balance: float = 0.0
     # is_active: bool
     class Config:
         from_attributes = True
@@ -156,4 +158,25 @@ class Messages(BaseModel):
     
     class Config:
         extra = "allow" #TODO: Allow them cac attr khac
+    
+
+# Wallet
+class WalletDeposit(BaseModel):
+    transaction_id: uuid.UUID
+    content: str
+    balance: float
+    
+    @model_validator(mode="after")
+    def check_balance(self):
+        if self.balance <= 0:
+            raise ValueError("Balance more than 10.000đ")
+        return self
+    
+    class Config:
+        from_attributes = True
+
+
+class WalletPublic(BaseModel):
+    id: int
+    balance: float
     

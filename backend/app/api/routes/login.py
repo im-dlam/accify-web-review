@@ -22,7 +22,7 @@ async def login(user: UserLogin, db: AsyncSession = Depends(get_db)) -> LoginRes
         user_in = await get_user_by_email(email=user.username, db=db)
     else:
         user_in = await get_user_by_username(username=user.username, db=db)
-
+        
     if not user_in:
         raise APIException(
             status_code=status.HTTP_401_UNAUTHORIZED, message="Invalid credentials"
@@ -32,13 +32,15 @@ async def login(user: UserLogin, db: AsyncSession = Depends(get_db)) -> LoginRes
         raise APIException(
             status_code=status.HTTP_401_UNAUTHORIZED, message="Invalid credentials"
         )
+        
+    
     content = LoginResponse(
-        # status="success",
-        message=f"Hi {user.username}! Welcome to BanVia.VN",
+        message=f"Hi {user_in.username}! Welcome to BanVia.VN",
         profile=UserInfo.model_validate(user_in),
     )
+    
     access_token = security.create_access_token(
-        subject={"id": user_in.id, "username": user.username, "role": user_in.role},
+        subject={"id": user_in.id, "username": user.username, "role": user_in.role, "wid": user_in.wid},
         expires_timedelta=timedelta(minutes=30),
     )
     response = JSONResponse(content.model_dump())

@@ -1,10 +1,11 @@
 from typing import Literal
 from fastapi import status
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, update
-from app.models import User
+from sqlalchemy import select, text, update
+from app.models import User, Wallet
 from sqlalchemy.exc import IntegrityError
 from app.api.exception import APIException
+from app.schemas import WalletPublic
 
 
 
@@ -38,7 +39,6 @@ async def create_user(*, user_create: User, db: AsyncSession) -> bool:
         
     return True
 
-
 async def get_user_by_email(*, email: str, db: AsyncSession) -> User | None:
     """
     Lấy user theo email.
@@ -53,8 +53,14 @@ async def get_user_by_email(*, email: str, db: AsyncSession) -> User | None:
     Example:
         >>> user = await get_user_by_email(email="dinhlam@example.com", db=db)
     """
-    result = await db.execute(select(User).where(User.email == email))
-    return result.scalar_one_or_none()
+    result = await db.execute(text("""
+                                select u.*, w.id as wid, w.balance as balance
+                                from users u join wallets w
+                                on u.id = w.user_id
+                                where u.email = :email;
+                                """),
+                            params={'email':email})
+    return result.first()
 
 
 async def get_user_by_username(*, username: str, db: AsyncSession) -> User | None:
@@ -71,8 +77,14 @@ async def get_user_by_username(*, username: str, db: AsyncSession) -> User | Non
     Example:
         >>> user = await get_user_by_username(username="dinhlam", db=db)
     """
-    result = await db.execute(select(User).where(User.username == username))
-    return result.scalar_one_or_none()
+    result = await db.execute(text("""
+                                select u.*, w.id as wid, w.balance as balance
+                                from users u join wallets w
+                                on u.id = w.user_id
+                                where u.username = :username;
+                                """),
+                            params={'username':username})
+    return result.first()
 
 async def get_user_by_id(*, user_id: str, db: AsyncSession) -> User | None:
     """
@@ -88,8 +100,14 @@ async def get_user_by_id(*, user_id: str, db: AsyncSession) -> User | None:
     Example:
         >>> user = await get_user_by_id(user_id="uuuuu-wwww-mmmm-wwww", db=db)
     """
-    result = await db.execute(select(User).where(User.id == user_id))
-    return result.scalar_one_or_none()
+    result = await db.execute(text("""
+                                select u.*, w.id as wid, w.balance as balance
+                                from users u join wallets w
+                                on u.id = w.user_id
+                                where u.id = :user_id;
+                                """),
+                            params={'user_id':user_id})
+    return result.first()
 
 async def update_user(*,
                       user_id: str, 
